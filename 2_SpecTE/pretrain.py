@@ -36,7 +36,9 @@ def get_args_parser():
     
     parser.add_argument('--n_epochs', type=int, default=30,#30  
                         help='Number of epochs to train.')
-    
+
+    parser.add_argument('--save_predict', type=bool, default=False,
+                        help='Whether to save the prediction results.')
 
     #==========================Model parameters模型参数==============================
     parser.add_argument('--net', choices=['SpecTE'], default='SpecTE',
@@ -50,7 +52,7 @@ def get_args_parser():
     parser.add_argument('--Hyperparameters_SpecTE', 
                         default={'patch_size':230, # 将输入图像分割成补丁的大小。  230
                                  'embed_dim':160, # 嵌入维度
-                                 'depth':4, #Encoder的层数        8
+                                 'depth':8, #Encoder的层数        8
                                  'num_heads':16, # 编码器注意力头的数量
                                  'decoder_embed_dim':80, # 解码器的嵌入维度
                                  'decoder_depth':1, # 解码器的层数
@@ -95,9 +97,9 @@ def get_args_parser():
                         help='The path of the data after preprocessed.')
     
     parser.add_argument('--path_log', type=str, default= './2_SpecTE/model_log/pretrain/',   # ./optuna_log/
-                        help='The path to save the model and training log after training.')
+                        help='The path to save the model and training logs after training.')
     
-    parser.add_argument('--path_preprocessed', type=str, default='./2_SpecTE/data_processed/pretrain_dataset', 
+    parser.add_argument('--path_data_processed', type=str, default='./2_SpecTE/data_processed/pretrain_dataset', 
                         help='The path to save training data after processing.')
 
     return parser
@@ -107,7 +109,7 @@ def get_dataset_info(args):
     
     setup_seed(args.seed)
     # 定义中间数据保存路径
-    data_set_temp_path = args.path_preprocessed + "/{}{}".format(args.date_range,'_stdFlux' if args.Flux_std else '')
+    data_set_temp_path = args.path_data_processed + "/{}{}".format(args.date_range,'_stdFlux' if args.Flux_std else '')
     if not os.path.exists(data_set_temp_path):
         os.makedirs(data_set_temp_path)
     dir_list = os.listdir(data_set_temp_path)
@@ -192,7 +194,7 @@ def get_dataset_info(args):
         y_valid_list=[]
 
         for i in range(5):
-            sub_data_set_temp_path = args.path_preprocessed + "/{}{}".format("{}_{}".format(i*10,i*10+10),'_stdFlux' if args.Flux_std else '')
+            sub_data_set_temp_path = args.path_data_processed + "/{}{}".format("{}_{}".format(i*10,i*10+10),'_stdFlux' if args.Flux_std else '')
             if not os.path.exists(sub_data_set_temp_path):
                 os.makedirs(sub_data_set_temp_path)
             sub_dir_list = os.listdir(sub_data_set_temp_path)
@@ -501,7 +503,8 @@ def train(args, dataset_info, model_number=None):
     # 保存模型 
     file_path = os.path.join(log_dir, "predict_valid.npy")
     # 保存预测结果
-    np.save(file_path, pred_flux_best)
+    if args.save_predict:
+        np.save(file_path, pred_flux_best)
     # 画训练过程图
     plot_and_save_loss_curves(train_loss_list, valid_loss_list, log_dir, model_name, lr_list=lr_list)
 
@@ -517,4 +520,4 @@ if __name__ == "__main__":
     setup_seed(args.seed)
     dataset_info = get_dataset_info(args)
 
-    train(args, dataset_info=dataset_info,model_number= "SP0")
+    train(args, dataset_info=dataset_info,model_number= "SP1")
