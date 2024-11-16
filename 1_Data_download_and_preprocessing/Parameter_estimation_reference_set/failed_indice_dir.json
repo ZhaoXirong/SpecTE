@@ -1,1 +1,1 @@
-{"./data_after_processing/Flux/0_50.npy": [1900, 2298, 2764, 3588, 3606, 3708, 4240, 4326, 5299, 5305, 5564, 5565, 5566, 5568, 5832, 5840, 6171, 9291, 14305, 19059, 26405, 27271, 34741, 43898, 46077, 78181, 92819], "./data_after_processing/Flux/50_100.npy": [3374, 5407, 9531, 13240, 21781, 28436], "./data_after_processing/Flux/100_999.npy": [17108]}
+{"./data_after_processing/Flux/0_50.npy": [], "./data_after_processing/Flux/50_100.npy": [], "./data_after_processing/Flux/100_999.npy": []}
