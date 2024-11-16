@@ -8,6 +8,9 @@
 1_Data_download_and_preprocessing/raw_data_catalogue_label
 
 
+2_SpecTE/data_processed
+2_SpecTE/model_log
+
 4_SpecTE-LAMOST_catalog/1_download_and_preprocessing_LAMOSTDR11/catalog_download/FITS
 4_SpecTE-LAMOST_catalog/1_download_and_preprocessing_LAMOSTDR11/catalog_download/download_url
 4_SpecTE-LAMOST_catalog/1_download_and_preprocessing_LAMOSTDR11/catalog_download/progress
