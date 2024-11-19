@@ -47,7 +47,7 @@ def get_args_parser():
     parser.add_argument('--predict', type=bool, default=True,
                         help='Whether to enable the prediction function for the program.')
     
-    parser.add_argument('--finetune', type=str, default=r"./2_SpecTE/model_log/pretrain/SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8])\SP1\weight_best.pkl",
+    parser.add_argument('--finetune', type=str, default=r"./2_SpecTE/model_log/pretrain/SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8])\OP\weight_best.pkl",
                          help='The path of the model to be fine tuned, if filled with None, will be trained from scratch.')
 
     # "E:\my_star\model_log\pretrain\目前最好一次：MAE(Pa=[115]-Di=[160]-Ha=[32]-De=[4])_all_add-noise0.05_w-d=0.4000\OP\weight_best.pkl"
@@ -67,15 +67,15 @@ def get_args_parser():
     parser.add_argument('--Hyperparameters_SpecTE', 
                         default={'patch_size':230, # 将输入图像分割成补丁的大小。  
                                  'embed_dim':160, # 嵌入维度
-                                 'depth':4, #Encoder的层数         # 8
+                                 'depth':8, #Encoder的层数         # 8
                                  'num_heads':16, # 编码器注意力头的数量
                                  'mlp_ratio':4., # MLP中隐层与嵌入维度的比例
-                                 'drop_rate':0.05,
-                                 'attn_drop_rate':0.0, #0.05
-                                 'drop_path_rate':0.13, #0.1
-                                 'pos_drop_rate':0.13, #0.0
-                                 'patch_drop_rate':0.00, # 0.0  
-                                 'proj_drop_rate':0.05 #0.0
+                                 'drop_rate':0.0,     # 0.05
+                                 'attn_drop_rate':0.0, #
+                                 'drop_path_rate':0.1, #0.13
+                                 'pos_drop_rate':0.3, # 0.13
+                                 'patch_drop_rate':0.00, #
+                                 'proj_drop_rate':0.1 #0.05
                                  },
                         help='''SpecTE的参数''')
     
@@ -89,7 +89,7 @@ def get_args_parser():
 
     parser.add_argument('--lr', type=float, default=None, metavar='LR',
                         help='learning rate (absolute lr)')
-    parser.add_argument('--blr', type=float, default=0.0003, metavar='LR',
+    parser.add_argument('--blr', type=float, default=0.001, metavar='LR',    #0.0003      0.0005
                         help='base learning rate: absolute_lr = base_lr * total_batch_size / 256')
     parser.add_argument('--min_lr', type=float, default=0.000005, metavar='LR',
                         help='lower lr bound for cyclic schedulers that hit 0')
@@ -922,8 +922,9 @@ def predict(args, dataset_info,para_dict):
         }, index=diff_mean.index)
 
         # 按照下面的顺序输出
-        label_order = ['Teff[K]', 'Logg', 'RV', 'FeH', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
-                                 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'NiH',]
+        label_order = ['Teff[K]', 'Logg', 'RV', 'FeH', 'MgH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 
+                                 'NiH', 'CH', 'NH', 'OH',  'AlH', 'MnH','NaH', 'VH',]
+
 
         # 重新排序
         df_evaluation = df_evaluation.loc[label_order]
@@ -978,24 +979,34 @@ def get_para_dict(args):
             'CA':['RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'NiH',]}
     # 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH'
     elif parameter_group=='each':
+        # para_dict = {
+        #     'te':['Teff[K]'],
+        #     'Lo':['Logg'],
+        #     'RV':['RV'],
+        #     'Fe':['FeH'],
+        #     'Mg':['MgH'],
+        #     'Si':['SiH'],
+        #     'SH':['SH'],
+        #     'KH':['KH'],
+        #     'Ca':['CaH'],
+        #     'Ti':['TiH'],
+        #     'Cr':['CrH'],
+        #     'Ni':['NiH'],
+        #     'CH':['CH'],
+        #     'NH':['NH'],
+        #     'OH':['OH'],
+        #     'Al':['AlH'],
+        #     'Mn':['MnH'],
+        #     'Na':['NaH'],
+        #     'VH':['VH'],
+        #     }
         para_dict = {
             'te':['Teff[K]'],
-            'Lo':['Logg'],
             'Fe':['FeH'],
-            'Mg':['MgH'],
-            'Si':['SiH'],
-            'SH':['SH'],
-            'KH':['KH'],
-            'Ca':['CaH'],
-            'Ti':['TiH'],
-            'Cr':['CrH'],
-            'Ni':['NiH'],
-            'CH':['CH'],
             'NH':['NH'],
-            'OH':['OH'],
-            'Al':['AlH'],
-            'Mn':['MnH']
-            }   
+            'RV':['RV'],
+            'ot':['Logg', 'CH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH']
+            }     
         
     return para_dict
 
@@ -1040,64 +1051,10 @@ if __name__ == "__main__":
 
 
     if args.predict:
-        predict(args, dataset_info, para_dict)
+        best_loss=predict(args, dataset_info, para_dict)
+        print(best_loss)
 
 
     
-
-
-
-    # # model 1
-    # args.Hyperparameters_BGANet = {'GRU':[64,32],'subsequence':5, 'n_heads':1,'dropout':0.2,'dropout_self':0.25}
-    # args.batch_size = 32
-
-    # No = 0
-    # if args.train:
-    #     for key, value in para_dict.items():
-    #         model_number= key + str(No),
-    #         train(args, dataset_info=dataset_info,
-    #               train_label=value,
-    #               model_number= key + str(No), 
-    #               cuda=True)
-    #         print(f'model: {model_number}, label_list: {value}')
-            
-    # if args.predict:
-    #     predict(args, dataset_info, para_dict)
-        
-    # # model 2
-    # args.Hyperparameters_BGANet = {'GRU':[128,64,32],'subsequence':10, 'n_heads':1,'dropout':0.2,'dropout_self':0.25}
-    # args.batch_size = 16
-
-    # No = 0
-    # if args.train:
-    #     for key, value in para_dict.items():
-    #         model_number= key + str(No),
-    #         train(args, dataset_info=dataset_info,
-    #               train_label=value,
-    #               model_number= key + str(No), 
-    #               cuda=True)
-    #         print(f'model: {model_number}, label_list: {value}')
-            
-    # if args.predict:
-    #     predict(args, dataset_info, para_dict)  
-            
-    # # model 3
-    # args.Hyperparameters_BGANet = {'GRU':[128,64,32],'subsequence':15, 'n_heads':1,'dropout':0.2,'dropout_self':0.25}
-    # args.batch_size = 32
-
-    # No = 0
-    # if args.train:
-    #     for key, value in para_dict.items():
-    #         model_number= key + str(No),
-    #         train(args, dataset_info=dataset_info,
-    #               train_label=value,
-    #               model_number= key + str(No), 
-    #               cuda=True)
-    #         print(f'model: {model_number}, label_list: {value}')
-            
-    # if args.predict:
-    #     predict(args, dataset_info, para_dict)          
-
-
 
     

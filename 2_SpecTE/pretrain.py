@@ -63,7 +63,7 @@ def get_args_parser():
                         help='''SpecTE的参数''')
 
     #=============================Optimizer parameters优化器参数==================================
-    parser.add_argument('--weight_decay', type=float, default=0.40,
+    parser.add_argument('--weight_decay', type=float, default=0.30,     #  0.4
                         help='weight decay (default: 0.05)')
 
     parser.add_argument('--lr', type=float, default=None, metavar='LR',
@@ -72,7 +72,7 @@ def get_args_parser():
                         help='base learning rate: absolute_lr = base_lr * total_batch_size / 256')
     parser.add_argument('--min_lr', type=float, default=0.000005, metavar='LR',
                         help='lower lr bound for cyclic schedulers that hit 0')
-    parser.add_argument('--warmup_epochs', type=int, default=2, metavar='N',
+    parser.add_argument('--warmup_epochs', type=int, default=4, metavar='N',    #2
                         help='epochs to warmup LR')
 
     #======================= =Dataset parameters数据选择和数据处理==================================
