@@ -22,4 +22,5 @@ model_test
 4_SpecTE-LAMOST_catalog/1_download_and_preprocessing_LAMOSTDR11/wave_scope.json
 
 **/__pycache__/
+**/.ipynb_checkpoints/
 *.tmp
