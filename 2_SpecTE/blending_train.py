@@ -14,84 +14,164 @@ from collections import defaultdict
 from tqdm import tqdm
 import pickle
 
+def get_args_parser():
+    # 定义参数
 
-parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument(
+        '--net_list', default=["none_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
+                            "two_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
+                            "each_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999"
+                            ],
+        help='''
+            model name list(需保证在模型log文件夹内)
+            '''
+    )
 
-parser.add_argument(
-    '--net_list', default=["none_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
-                           "two_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
-                           "each_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999"
-                           ],
-    help='''
-        model name list(需保证在模型log文件夹内)
-        '''
-)
-
-parser.add_argument(
-    '--model_path', default=None,
-    help='''
-        可以直接放模型的路径列表（优先级高）
-        '''
-)
+    parser.add_argument(
+        '--model_path', default=None,
+        help='''
+            可以直接放模型的路径列表（优先级高）
+            '''
+    )
 
 
-parser.add_argument(
-    '--path_label_config', type=str, default='./2_SpecTE/data_processed/fine_tuning_dataset/5_50_stdFlux/label_config.pkl',
-    help='存放标签的一些信息，包括数据和标签的均值方差等，用于还原',
-)
+    parser.add_argument(
+        '--path_label_config', type=str, default='./2_SpecTE/data_processed/fine_tuning_dataset/5_50_stdFlux/label_config.pkl',
+        help='存放标签的一些信息，包括数据和标签的均值方差等，用于还原',
+    )
+
+    # parser.add_argument(
+    #     '--path_labels', type=str, default='./data/LABELS',
+    #     help='The path of the labels.',
+    # )
+
+    # 存放模型数据的路径
+    parser.add_argument(
+        '--path_log', type=str, default= './2_SpecTE/model_log/fine_tune/',
+        help='The path to save the model data after training.'
+    )
+
+    # # 存放原始数据 （暂时没用到）
+    # parser.add_argument(
+    #     '--path_preprocessed', type=str, default='./data/data_Preprocessed',   # D:\文\jupyter\My\data\data_Preprocessed  .data/data_Preprocessed
+    #     help='The path to save the model data after training.'
+    # )
+
+    # 保存位置
+    parser.add_argument(
+        '--path_save', type=str, default='./2_SpecTE/model_log/blending/',   
+        help='The path to save the model data after training.'
+    )
+
+
+    parser.add_argument(
+        '--label_list', type=list, default=['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
+                                    'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH', 'snrg',],  
+        
+        # ['Teff[K]', 'Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH',
+        #                                       'KH', 'CaH', 'TiH', 'CrH','MnH', 'FeH', 'NiH', 'snrg'],   
+        help='The label data that needs to be learned.'
+    )
+    parser.add_argument(
+        '--date_range', choices=['5_50', '50_999', 'all'], default='50_999',
+        help='选择数据集信噪比范围.',
+    )
+
+
+    parser.add_argument(
+        '--mode_train',  choices=['linear', 'FC'], default='linear',
+        help ='The size of the batch.'
+    )
+
+    # parser.add_argument(
+    #     '--std', type=bool, default=False,
+    #     help='''
+    #         loss: 可选：'PDPL', 'MSE','MAE','SoothL1Loss'
+    #         '''
+    # )
+    return parser
+
+
+
+# parser = argparse.ArgumentParser()
 
 # parser.add_argument(
-#     '--path_labels', type=str, default='./data/LABELS',
-#     help='The path of the labels.',
+#     '--net_list', default=["none_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
+#                            "two_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
+#                            "each_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999"
+#                            ],
+#     help='''
+#         model name list(需保证在模型log文件夹内)
+#         '''
 # )
 
-# 存放模型数据的路径
-parser.add_argument(
-    '--path_log', type=str, default= './2_SpecTE/model_log/fine_tune/',
-    help='The path to save the model data after training.'
-)
-
-# # 存放原始数据 （暂时没用到）
 # parser.add_argument(
-#     '--path_preprocessed', type=str, default='./data/data_Preprocessed',   # D:\文\jupyter\My\data\data_Preprocessed  .data/data_Preprocessed
+#     '--model_path', default=None,
+#     help='''
+#         可以直接放模型的路径列表（优先级高）
+#         '''
+# )
+
+
+# parser.add_argument(
+#     '--path_label_config', type=str, default='./2_SpecTE/data_processed/fine_tuning_dataset/5_50_stdFlux/label_config.pkl',
+#     help='存放标签的一些信息，包括数据和标签的均值方差等，用于还原',
+# )
+
+# # parser.add_argument(
+# #     '--path_labels', type=str, default='./data/LABELS',
+# #     help='The path of the labels.',
+# # )
+
+# # 存放模型数据的路径
+# parser.add_argument(
+#     '--path_log', type=str, default= './2_SpecTE/model_log/fine_tune/',
 #     help='The path to save the model data after training.'
 # )
 
-# 保存位置
-parser.add_argument(
-    '--path_save', type=str, default='./2_SpecTE/model_log/blending/',   
-    help='The path to save the model data after training.'
-)
+# # # 存放原始数据 （暂时没用到）
+# # parser.add_argument(
+# #     '--path_preprocessed', type=str, default='./data/data_Preprocessed',   # D:\文\jupyter\My\data\data_Preprocessed  .data/data_Preprocessed
+# #     help='The path to save the model data after training.'
+# # )
 
-
-parser.add_argument(
-    '--label_list', type=list, default=['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
-                                 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH', 'snrg',],  
-    
-    # ['Teff[K]', 'Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH',
-    #                                       'KH', 'CaH', 'TiH', 'CrH','MnH', 'FeH', 'NiH', 'snrg'],   
-    help='The label data that needs to be learned.'
-)
-parser.add_argument(
-    '--date_range', choices=['5_50', '50_999', 'all'], default='50_999',
-    help='选择数据集信噪比范围.',
-)
-
-
-parser.add_argument(
-    '--mode_train',  choices=['linear', 'FC'], default='linear',
-    help ='The size of the batch.'
-)
-
-
+# # 保存位置
+# parser.add_argument(
+#     '--path_save', type=str, default='./2_SpecTE/model_log/blending/',   
+#     help='The path to save the model data after training.'
+# )
 
 
 # parser.add_argument(
-#     '--std', type=bool, default=False,
-#     help='''
-#         loss: 可选：'PDPL', 'MSE','MAE','SoothL1Loss'
-#         '''
+#     '--label_list', type=list, default=['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
+#                                  'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH', 'snrg',],  
+    
+#     # ['Teff[K]', 'Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH',
+#     #                                       'KH', 'CaH', 'TiH', 'CrH','MnH', 'FeH', 'NiH', 'snrg'],   
+#     help='The label data that needs to be learned.'
 # )
+# parser.add_argument(
+#     '--date_range', choices=['5_50', '50_999', 'all'], default='50_999',
+#     help='选择数据集信噪比范围.',
+# )
+
+
+# parser.add_argument(
+#     '--mode_train',  choices=['linear', 'FC'], default='linear',
+#     help ='The size of the batch.'
+# )
+
+
+
+
+# # parser.add_argument(
+# #     '--std', type=bool, default=False,
+# #     help='''
+# #         loss: 可选：'PDPL', 'MSE','MAE','SoothL1Loss'
+# #         '''
+# # )
 
 
 
@@ -429,11 +509,12 @@ def blending(args):
 
 
 if __name__ == "__main__":
+    parser = get_args_parser()
     args = parser.parse_args()
     args.model_path=[r"G:\Star\model_test\all\1_finetune_lr\0_lr=[0.001]-drop=[0.0]\fine_tune\each_SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",
                      r"G:\Star\model_test\all\1_finetune_lr\0_lr=[0.001]-drop=[0.0]\fine_tune\none_SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",
                      r"G:\Star\2_SpecTE\model_log\fine_tuning\two_SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",]
-
+    print (args.net_list)
     print (blending(args))
     
 
