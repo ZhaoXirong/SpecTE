@@ -21,16 +21,16 @@ import os
 
 # 定义工作路径
 # save_path = r'F:/My_trial/all/drop_pretrain/'
-save_path = r'./model_test/pretrain_warmup_epochs/'
+save_path = r'./model_test/pretrain_all/'
 
 # 如果需要在已有的study上运行，则加载
 study_path =False     # True：默认加载study_temp，False：不加载  或者直接填路径
 
 # 定义搜索的次数
-n_trials=1
+n_trials=20     
 
 #定义一个全局变量用于计数
-No_i = 0
+No_i = 20
 
 def objective(trial,dataset_info_pretrain,dataset_info_finetune=None):
     global No_i, save_path
@@ -42,7 +42,7 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune=None):
         #编码器
         patch_size = 230
         dim = 160
-        depth = 4    #8
+        depth = 8    #8
         heads = 16
         mlp_ratio=4.0
         #解码器
@@ -54,11 +54,14 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune=None):
         # *****训练参数******
 
         # 预训练
-        weight_decay_pretrain = 0.4
+        weight_decay_pretrain = 0.3
         drop_rate_pretrain = 0.
         lr = 0.005
-        
-        
+
+        weight_decay_pretrain = trial.suggest_float('weight_decay_pretrain', 0.4, 0.4,step=0.1)  # 在0到0.5之间选择
+        drop_rate_pretrain = trial.suggest_categorical('drop_rate_pretrain', [0.0,])      # 在0到0.5之间选择
+        lr = trial.suggest_categorical('lr',[0.005, 0.001, 0.0005] )  # 在1e-5到1e-2之间对数分布选择
+        warmup_epochs = trial.suggest_int('warmup_epochs',4, 4)
         
         # # 微调
         # lr=0.0003
@@ -77,11 +80,11 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune=None):
 
         # 优化列表
         # 已调参
-        if No_i < 1:
-            warmup_epochs = 5
-            lr = 0.001
-        elif  No_i<2:
-            pass
+        # if No_i < 1:
+        #     warmup_epochs = 5
+        #     lr = 0.001
+        # elif  No_i<2:
+        #     pass
 
         # elif  No_i<7:
         #     lr = 0.006
@@ -90,11 +93,11 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune=None):
         # else:  
         #     lr = 0.00001
 
-        trial.set_user_attr('lr', lr)
+        # trial.set_user_attr('lr', lr)
 
 
         # 定义当前工作路径
-        model_path = os.path.join(save_path, "{}_warmup_epochs=[{}]_lr=0.001/".format(No_i,warmup_epochs))
+        model_path = os.path.join(save_path, "{}_lr=[{}]_w-decay=[{}]_drop=[{}]/".format(No_i,lr,weight_decay_pretrain,drop_rate_pretrain))
         No_i=No_i+1
         os.makedirs(model_path, exist_ok=True)
 
@@ -157,7 +160,21 @@ def save_study_at_every_step(study, trial):
     df = study.trials_dataframe()
     df.to_csv(os.path.join(save_path,'optuna_trials_temp.csv'), index=False)    
 
-
+def dynamic_fixed_params(trial):
+    # global best_a
+    # # 第一阶段：固定 'b' 和 'c'，只优化 'a'
+    # if trial.number < 10:  # 前10轮只优化 'a'
+    #     return {'b': 5, 'c': 5}
+    # # 第二阶段：固定 'a' 的最佳值，优化 'b' 和 'c'
+    # elif trial.number < 20:  # 接下来的10轮只优化 'b' 和 'c'
+    #     # 如果 best_a 还没有设置，则在前10轮中找到最优的 'a'
+    #     if best_a is None:
+    #         best_a = trial.suggest_uniform('a', 0, 10)  # 在第一次优化中设定最佳 'a'
+    #     return {'a': best_a}  # 固定最佳的 'a'，只优化 'b' 和 'c'
+    # # 最后阶段：继续优化 'b' 和 'c'
+    # else:
+    #     return {'a': best_a}  # 固定 'a'，继续优化 'b' 和 'c'
+    return {}
 
 def main():
 
@@ -166,7 +183,15 @@ def main():
     # 加载或创建study对象
     if study_path==False:
         # 创建（study）对象。
-        study = optuna.create_study()
+        # study = optuna.create_study()
+        
+        # study = optuna.create_study(sampler=optuna.samplers.PartialFixedSampler(
+        #     dynamic_fixed_params,
+        #     base_sampler=optuna.samplers.RandomSampler()),
+        #     )
+
+        study = optuna.create_study(sampler=optuna.samplers.RandomSampler())
+        
     else:
         # 加载已有（study）对象。
         if study_path==True:

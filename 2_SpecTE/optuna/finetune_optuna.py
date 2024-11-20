@@ -21,16 +21,16 @@ import os
 
 # 定义工作路径
 # save_path = r'F:/My_trial/all/drop_pretrain/'
-save_path = r'./model_test/finetune_drop/'
+save_path = r'./model_test/finetune_drop2/'
 
 # 如果需要在已有的study上运行，则加载
-study_path =True # True：默认加载study_temp，False：不加载  或者直接填路径
+study_path =False # True：默认加载study_temp，False：不加载  或者直接填路径
 
 # 定义搜索的次数
 n_trials=80
 
 #定义一个全局变量用于计数
-No_i = 5
+No_i = 0
 
 def objective(trial,dataset_info_pretrain,dataset_info_finetune):
     global No_i, save_path
@@ -72,14 +72,14 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune):
 
         # lr =trial.suggest_float("lr", 0.00001, 0.001, step=0.00001)
         # trial.suggest_float('drop_rate_pretrain',0.01, 0.5, log=True) 
-        lr = trial.suggest_categorical("lr", [0.02,0.01,0.005,0.001,0.0005,0.0001])
-        weight_decay = trial.suggest_categorical("weight_decay", [0.3,0.2,0.1,0.05])
-        attn_drop_rate = trial.suggest_categorical("attn_drop_rate", [0.1,0.05,0.])
-        patch_drop_rate = trial.suggest_categorical("patch_drop_rate", [0.1,0.01,0.])
-        drop_rate = trial.suggest_categorical("drop_rate", [0.3,0.2,0.1,0.05])
-        drop_path_rate = trial.suggest_categorical("drop_path_rate", [0.1,0.05,0.])
-        pos_drop_rate = trial.suggest_categorical("pos_drop_rate", [0.1,0.01,0.])
-        proj_drop_rate = trial.suggest_categorical("proj_drop_rate", [0.1,0.0])
+        lr = trial.suggest_categorical("lr", [0.1,0.01,0.005,0.001,0.0005,0.0001])
+        weight_decay = trial.suggest_categorical("weight_decay", [0.5, 0.4, 0.3, 0.1])
+        attn_drop_rate = trial.suggest_categorical("attn_drop_rate", [0.,])
+        patch_drop_rate = trial.suggest_categorical("patch_drop_rate", [0.,])
+        drop_rate = trial.suggest_categorical("drop_rate", [0.1,0.0])
+        drop_path_rate = trial.suggest_categorical("drop_path_rate", [0.1,0.])
+        pos_drop_rate = trial.suggest_categorical("pos_drop_rate", [0.3, 0.2, 0.1,0.])
+        proj_drop_rate = trial.suggest_categorical("proj_drop_rate", [0.1,])
 
 
         # 优化列表
@@ -250,7 +250,9 @@ def main():
     # 加载或创建study对象
     if study_path==False:
         # 创建（study）对象。
-        study = optuna.create_study()
+        # study = optuna.create_study()
+        study = optuna.create_study(sampler=optuna.samplers.RandomSampler())
+        
     else:
         # 加载已有（study）对象。
         if study_path==True:
