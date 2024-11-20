@@ -2,6 +2,9 @@
 import optuna
 from datetime import datetime
 
+import sys
+sys.path.append('./2_SpecTE') 
+
 from pretrain import train as train_pretrain
 from pretrain import get_args_parser as get_args_parser_pretrain
 from pretrain import get_dataset_info as get_dataset_info_pretrain

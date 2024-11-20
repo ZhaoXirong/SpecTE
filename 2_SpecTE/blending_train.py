@@ -432,7 +432,7 @@ def blending(args):
 
 
     
-    print("result")
+    print("***********************result********************")
     
     # # 5-50
     # print("5-50")

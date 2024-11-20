@@ -2,6 +2,9 @@
 import optuna
 from datetime import datetime
 
+import sys
+sys.path.append('./2_SpecTE') 
+
 from pretrain import train as train_pretrain
 from pretrain import get_args_parser as get_args_parser_pretrain
 from pretrain import get_dataset_info as get_dataset_info_pretrain
@@ -15,7 +18,6 @@ from fine_tuning import predict
 
 
 from blending_train import get_args_parser as get_args_parser_blending
-from blending_train import get_dataset_info as get_dataset_info_blending
 from blending_train import blending
 
 import pickle
