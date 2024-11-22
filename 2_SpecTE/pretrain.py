@@ -63,7 +63,7 @@ def get_args_parser():
                         help='''SpecTE的参数''')
 
     #=============================Optimizer parameters优化器参数==================================
-    parser.add_argument('--weight_decay', type=float, default=0.30,     #  0.4
+    parser.add_argument('--weight_decay', type=float, default=0.40,     #  0.4
                         help='weight decay (default: 0.05)')
 
     parser.add_argument('--lr', type=float, default=None, metavar='LR',

@@ -65,7 +65,7 @@ def get_args_parser():
     # Hyperparameters_Vit
     # Hyperparameters_SpecTE
     parser.add_argument('--Hyperparameters_SpecTE', 
-                        default={'patch_size':230, # 将输入图像分割成补丁的大小。  
+                        default={'patch_size':115, # 将输入图像分割成补丁的大小。   # 230
                                  'embed_dim':160, # 嵌入维度
                                  'depth':8, #Encoder的层数         # 8
                                  'num_heads':16, # 编码器注意力头的数量
@@ -974,11 +974,18 @@ def get_para_dict(args):
         para_dict = {'AL':['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
                                  'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH',],}
     elif parameter_group=='two':
+        # V1.0
+        # para_dict = {
+        #     'SP':['Teff[K]', 'Logg', 'FeH'],
+        #     'CA':['RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'NiH',]}
+                    # 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH'
+        # V 1.1
         para_dict = {
-            'SP':['Teff[K]', 'Logg', 'FeH'],
-            'CA':['RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'NiH',]}
-    # 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH'
+            'SP':['Teff[K]', 'Logg', 'FeH', 'RV'],
+            'CA':['CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'NiH',]}
+
     elif parameter_group=='each':
+        # v1.0
         # para_dict = {
         #     'te':['Teff[K]'],
         #     'Lo':['Logg'],
@@ -1000,6 +1007,7 @@ def get_para_dict(args):
         #     'Na':['NaH'],
         #     'VH':['VH'],
         #     }
+        # v2.0
         para_dict = {
             'te':['Teff[K]'],
             'Fe':['FeH'],
@@ -1007,6 +1015,21 @@ def get_para_dict(args):
             'RV':['RV'],
             'ot':['Logg', 'CH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH']
             }     
+        # v3.0  对比不如 v2.0
+        # para_dict = {
+        #     'te':['Teff[K]'],
+        #     'Fe':['FeH'],
+        #     'RV':['RV'],
+        #     'ot':['Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH']
+        #     }  
+        # v3.1   对比不如 v2.0
+        # para_dict = {
+        #     'te':['Teff[K]'],
+        #     'Al':['AlH'],
+        #     'RV':['RV'],
+        #     'CH':['CH'],
+        #     'ot':['Logg', 'CH', 'NH', 'OH', 'MgH' , 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH','FeH']
+        #     }  
         
     return para_dict
 
