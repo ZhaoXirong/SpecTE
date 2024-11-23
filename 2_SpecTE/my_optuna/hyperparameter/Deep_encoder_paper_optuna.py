@@ -26,16 +26,16 @@ import os
 # 定义工作路径
 # save_path = r'F:/My_trial/all/drop_pretrain/'
 save_path = r'F:/My_trial/paper/Den/all'
-save_path = r'./model_test/all/7_paper_epoch1_Deep_decoder/'
+save_path = r'./model_test/all/8_paper_epoch1_Deep/'
 
 # 如果需要在已有的study上运行，则加载
-study_path =False    # True：默认加载study_temp，False：不加载  或者直接填路径
+study_path =True    # True：默认加载study_temp，False：不加载  或者直接填路径
 
 # 定义搜索的次数
-n_trials=3
+n_trials=1
 
 #定义一个全局变量用于计数
-No_i = 0
+No_i = 3
 
 def objective(trial,dataset_info_pretrain,dataset_info_finetune):
     global No_i, save_path
@@ -81,18 +81,20 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune):
 
         # 优化列表
         # 已调参
+
         if No_i < 1:
-            de_depth = 1
+            depth = 4
         elif  No_i<2:
-            de_depth = 2
+            depth = 6
         elif  No_i<3:
-            de_depth = 4  
+            depth = 8   
         elif  No_i<4:
-            de_dim = 40     
+            depth = 12  
         else:  
-            de_dim = 40
+            pass
 
 
+        trial.set_user_attr('depth', depth)              
         trial.set_user_attr('deep_decoder', de_depth)
         trial.set_user_attr('dim_de', de_dim)
         trial.set_user_attr('dim', dim)
@@ -100,7 +102,7 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune):
         
 
         # 定义当前工作路径
-        model_working_path = os.path.join(save_path, "{}_Deep_decoder=[{}]/".format(No_i,de_depth))
+        model_working_path = os.path.join(save_path, "{}_Deep=[{}]/".format(No_i,depth))
         No_i=No_i+1
         os.makedirs(model_working_path, exist_ok=True)
 
