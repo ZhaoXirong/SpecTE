@@ -25,16 +25,17 @@ import os
 
 # 定义工作路径
 # save_path = r'F:/My_trial/all/drop_pretrain/'
-save_path = r'./model_test/all/2_paper_epoch1_T/'
+save_path = r'F:/My_trial/paper/Den/all'
+save_path = r'./model_test/all/9_paper_epoch2_T/'
 
 # 如果需要在已有的study上运行，则加载
-study_path =False    # True：默认加载study_temp，False：不加载  或者直接填路径
+study_path =True   # True：默认加载study_temp，False：不加载  或者直接填路径
 
 # 定义搜索的次数
-n_trials=5
+n_trials=4
 
 #定义一个全局变量用于计数
-No_i = 0
+No_i = 1
 
 def objective(trial,dataset_info_pretrain,dataset_info_finetune):
     global No_i, save_path
@@ -44,7 +45,7 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune):
         
         # ******模型参数******
         #编码器
-        patch_size = 230
+        patch_size = 115       # 已调参
         dim = 160
         depth = 8
         heads = 16
@@ -57,7 +58,7 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune):
         # *****训练参数******
 
         # 预训练
-        weight_decay_pretrain = 0.30
+        weight_decay_pretrain = 0.40
         drop_rate_pretrain = 0.
         
         # 微调
@@ -78,6 +79,9 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune):
         # 已调参
 
 
+        # 优化列表
+        # 已调参
+
         if No_i < 1:
             T = 5
             patch_size=690
@@ -86,7 +90,7 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune):
             patch_size=230
         elif  No_i<3:
             T = 30
-            patch_size=115    
+            patch_size=115  
         elif  No_i<4:
             T = 50
             patch_size=69  
@@ -94,9 +98,13 @@ def objective(trial,dataset_info_pretrain,dataset_info_finetune):
             T = 115
             patch_size=30
 
-
-
         trial.set_user_attr('T', T)
+        trial.set_user_attr('depth', depth)              
+        trial.set_user_attr('deep_decoder', de_depth)
+        trial.set_user_attr('dim_de', de_dim)
+        trial.set_user_attr('dim', dim)
+        trial.set_user_attr('weight_decay_pretrain', weight_decay_pretrain)
+        
 
         # 定义当前工作路径
         model_working_path = os.path.join(save_path, "{}_T=[{}]-size=[{}]/".format(No_i,T,patch_size))
