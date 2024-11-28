@@ -88,7 +88,7 @@ def get_args_parser():
     parser.add_argument('--cuda', default=True,
                         help='device to use for training / testing')
     
-    parser.add_argument('--seed', default=0, type=int)
+    parser.add_argument('--seed', default=1, type=int)
 
      #===============================定义路径=======================================
     # parser.add_argument('--path_data_set', type=str, default = r'E:/my_star/预处理/data_after_processing/result',

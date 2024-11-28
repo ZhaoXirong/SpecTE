@@ -986,35 +986,35 @@ def get_para_dict(args):
 
     elif parameter_group=='each':
         # v1.0
-        # para_dict = {
-        #     'te':['Teff[K]'],
-        #     'Lo':['Logg'],
-        #     'RV':['RV'],
-        #     'Fe':['FeH'],
-        #     'Mg':['MgH'],
-        #     'Si':['SiH'],
-        #     'SH':['SH'],
-        #     'KH':['KH'],
-        #     'Ca':['CaH'],
-        #     'Ti':['TiH'],
-        #     'Cr':['CrH'],
-        #     'Ni':['NiH'],
-        #     'CH':['CH'],
-        #     'NH':['NH'],
-        #     'OH':['OH'],
-        #     'Al':['AlH'],
-        #     'Mn':['MnH'],
-        #     'Na':['NaH'],
-        #     'VH':['VH'],
-        #     }
-        # v2.0
         para_dict = {
             'te':['Teff[K]'],
-            'Fe':['FeH'],
-            'NH':['NH'],
+            'Lo':['Logg'],
             'RV':['RV'],
-            'ot':['Logg', 'CH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH']
-            }     
+            'Fe':['FeH'],
+            'Mg':['MgH'],
+            'Si':['SiH'],
+            'SH':['SH'],
+            'KH':['KH'],
+            'Ca':['CaH'],
+            'Ti':['TiH'],
+            'Cr':['CrH'],
+            'Ni':['NiH'],
+            'CH':['CH'],
+            'NH':['NH'],
+            'OH':['OH'],
+            'Al':['AlH'],
+            'Mn':['MnH'],
+            'Na':['NaH'],
+            'VH':['VH'],
+            }
+        # v2.0
+        # para_dict = {
+        #     'te':['Teff[K]'],
+        #     'Fe':['FeH'],
+        #     'NH':['NH'],
+        #     'RV':['RV'],
+        #     'ot':['Logg', 'CH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH']
+        #     }     
         # v3.0  对比不如 v2.0
         # para_dict = {
         #     'te':['Teff[K]'],
