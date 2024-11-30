@@ -41,23 +41,14 @@ def get_args_parser():
         '--path_label_config', type=str, default='./2_SpecTE/data_processed/fine_tuning_dataset/5_50_stdFlux/label_config.pkl',
         help='存放标签的一些信息，包括数据和标签的均值方差等，用于还原',
     )
-
-    # parser.add_argument(
-    #     '--path_labels', type=str, default='./data/LABELS',
-    #     help='The path of the labels.',
-    # )
+    
 
     # 存放模型数据的路径
     parser.add_argument(
         '--path_log', type=str, default= './2_SpecTE/model_log/fine_tune/',
         help='The path to save the model data after training.'
     )
-
-    # # 存放原始数据 （暂时没用到）
-    # parser.add_argument(
-    #     '--path_preprocessed', type=str, default='./data/data_Preprocessed',   # D:\文\jupyter\My\data\data_Preprocessed  .data/data_Preprocessed
-    #     help='The path to save the model data after training.'
-    # )
+    
 
     # 保存位置
     parser.add_argument(
@@ -85,94 +76,8 @@ def get_args_parser():
         help ='The size of the batch.'
     )
 
-    # parser.add_argument(
-    #     '--std', type=bool, default=False,
-    #     help='''
-    #         loss: 可选：'PDPL', 'MSE','MAE','SoothL1Loss'
-    #         '''
-    # )
-    return parser
-
-
-
-# parser = argparse.ArgumentParser()
-
-# parser.add_argument(
-#     '--net_list', default=["none_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
-#                            "two_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
-#                            "each_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999"
-#                            ],
-#     help='''
-#         model name list(需保证在模型log文件夹内)
-#         '''
-# )
-
-# parser.add_argument(
-#     '--model_path', default=None,
-#     help='''
-#         可以直接放模型的路径列表（优先级高）
-#         '''
-# )
-
-
-# parser.add_argument(
-#     '--path_label_config', type=str, default='./2_SpecTE/data_processed/fine_tuning_dataset/5_50_stdFlux/label_config.pkl',
-#     help='存放标签的一些信息，包括数据和标签的均值方差等，用于还原',
-# )
-
-# # parser.add_argument(
-# #     '--path_labels', type=str, default='./data/LABELS',
-# #     help='The path of the labels.',
-# # )
-
-# # 存放模型数据的路径
-# parser.add_argument(
-#     '--path_log', type=str, default= './2_SpecTE/model_log/fine_tune/',
-#     help='The path to save the model data after training.'
-# )
-
-# # # 存放原始数据 （暂时没用到）
-# # parser.add_argument(
-# #     '--path_preprocessed', type=str, default='./data/data_Preprocessed',   # D:\文\jupyter\My\data\data_Preprocessed  .data/data_Preprocessed
-# #     help='The path to save the model data after training.'
-# # )
-
-# # 保存位置
-# parser.add_argument(
-#     '--path_save', type=str, default='./2_SpecTE/model_log/blending/',   
-#     help='The path to save the model data after training.'
-# )
-
-
-# parser.add_argument(
-#     '--label_list', type=list, default=['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
-#                                  'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH', 'snrg',],  
     
-#     # ['Teff[K]', 'Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH',
-#     #                                       'KH', 'CaH', 'TiH', 'CrH','MnH', 'FeH', 'NiH', 'snrg'],   
-#     help='The label data that needs to be learned.'
-# )
-# parser.add_argument(
-#     '--date_range', choices=['5_50', '50_999', 'all'], default='50_999',
-#     help='选择数据集信噪比范围.',
-# )
-
-
-# parser.add_argument(
-#     '--mode_train',  choices=['linear', 'FC'], default='linear',
-#     help ='The size of the batch.'
-# )
-
-
-
-
-# # parser.add_argument(
-# #     '--std', type=bool, default=False,
-# #     help='''
-# #         loss: 可选：'PDPL', 'MSE','MAE','SoothL1Loss'
-# #         '''
-# # )
-
+    return parser
 
 
 
@@ -217,38 +122,7 @@ def get_dataset_info(args):
     label_config = pickle.load(open(args.path_label_config, 'rb'))
     mean_label = label_config["label_mean"]
     std_label = label_config["label_std"]
-    
-    # x_valid_torch = torch.tensor(valid.values, dtype=torch.float32)
-    # X_test_torch = torch.tensor(valid.values, dtype=torch.float32)
 
-
-    # # # train_dataset = Data.TensorDataset(X_train_torch, y_train_torch)
-    # valid_dataset = Data.TensorDataset(x_valid_torch, y_valid_torch)
-    # test_dataset = Data.TensorDataset(X_test_torch, y_test_torch)
-
-    # valid_loader = Data.DataLoader(
-    #     dataset=valid_dataset,
-    #     batch_size=args.train_parameters['batch'],
-    #     shuffle=True,  
-    #     num_workers=0,
-    # )
-    # test_loader = Data.DataLoader(
-    #     dataset=test_dataset,
-    #     batch_size=args.train_parameters['batch'],
-    #     shuffle=False,
-    #     num_workers=0,
-    # )
-    # mean_label = mean_label[args.label_list].values
-    # std_label = std_label[args.label_list].values
-
-    # dataset_info = {
-    #     "y_valid": y_valid,
-    #     "y_test": y_test,
-    #     "x_valid": x_valid,
-    #     "x_test": x_test,
-    #     "valid_loader": valid_loader,
-    #     "test_loader": test_loader
-    # }
 
     dataset_info = {
         "valid": valid,
@@ -434,37 +308,6 @@ def blending(args):
     
     print("***********************result********************")
     
-    # # 5-50
-    # print("5-50")
-    # args.net_list=["BGANet_(GRU=[64-32]-Ns=5-Hd=1)_dr=0.2_sfdr=0.25_5_50_PDPL——分AB训练",
-    #                "BGANet_(GRU=[128-64-32]-Ns=10-Hd=1)_dr=0.2_sfdr=0.25_5_50_PDPL——分AB训练",
-    #                "BGANet_(GRU=[128-64-32]-Ns=15-Hd=1)_dr=0.2_sfdr=0.25_5_50_PDPL——分AB训练"]
-    # args.date_range = '5_50'
-    # dataset_info = get_dataset_info(args)
-    # for key, value in para_dict.items():
-    #     a,b = train(args, dataset_info=dataset_info, train_label=value)
-    #     all_result[key][0] = a
-    #     all_result[key][1] = b 
-
-    # y_test_snr = dataset_info["y_valid"]['snrg']
-    # all_result['snrg'][0] = y_test_snr
-
-
-    # # 50-999
-    # print("50-999")
-    # args.net_list=["BGANet_(GRU=[64-32]-Ns=5-Hd=1)_dr=0.2_sfdr=0.25_50_999_PDPL——分AB训练",
-    #                "BGANet_(GRU=[128-64-32]-Ns=10-Hd=1)_dr=0.2_sfdr=0.25_50_999_PDPL——分AB训练",
-    #                "BGANet_(GRU=[128-64-32]-Ns=15-Hd=1)_dr=0.2_sfdr=0.25_50_999_PDPL——分AB训练"]
-    # args.date_range = '50_999'
-    # dataset_info = get_dataset_info(args)
-    # for key, value in para_dict.items():
-    #     a,b = train(args, dataset_info=dataset_info, train_label=value)
-        
-    #     all_result[key][0]=np.concatenate((all_result[key][0], a), axis=0)
-    #     all_result[key][1]=np.concatenate((all_result[key][1], b), axis=0)
-    # y_test_snr = dataset_info["y_valid"]['snrg']
-    # all_result['snrg'][0] = np.concatenate((all_result['snrg'][0], y_test_snr), axis=0)
-
 
 
     # 统计   
@@ -488,13 +331,13 @@ def blending(args):
 
 
     # 直接保存统计结果
-    df.to_csv(args.path_save+'统计结果_{}.csv'.format(args.date_range), index=True)    
+    df.to_csv(args.path_save+'Statistical_Results_{}.csv'.format(args.date_range), index=True)    
     catalog_result.to_csv(os.path.join(args.path_save,"catalog{}.csv".format(args.date_range)), index=False)
 
     # 保存原始结果
     # 转换为普通字典
     simple_dict = {k: v for k, v in all_result.items()}
-    with open(args.path_save+'原始结果_{}.pkl'.format(args.date_range), 'wb') as file:
+    with open(args.path_save+'Raw_Results_{}.pkl'.format(args.date_range), 'wb') as file:
         pickle.dump(simple_dict, file)
 
 
