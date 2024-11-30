@@ -47,7 +47,7 @@ def get_args_parser():
     parser.add_argument('--predict', type=bool, default=True,
                         help='Whether to enable the prediction function for the program.')
     
-    parser.add_argument('--finetune', type=str, default=r"./2_SpecTE/model_log/pretrain/SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8])\OP\weight_best.pkl",
+    parser.add_argument('--finetune', type=str, default=r"./2_SpecTE/model_log/pretrain/SpecTE(Pa=[115]-Di=[160]-Ha=[16]-De=[8])/OP/weight_best.pkl",
                          help='The path of the model to be fine tuned, if filled with None, will be trained from scratch.')
 
     # "E:\my_star\model_log\pretrain\目前最好一次：MAE(Pa=[115]-Di=[160]-Ha=[32]-De=[4])_all_add-noise0.05_w-d=0.4000\OP\weight_best.pkl"
@@ -1076,6 +1076,33 @@ if __name__ == "__main__":
     if args.predict:
         best_loss=predict(args, dataset_info, para_dict)
         print(best_loss)
+
+
+    # # train 50-100
+    # args.date_range ='5_50' 
+    # dataset_info = get_dataset_info(args)
+
+
+    # model_path_list=[]
+    # # none
+    # args.parameter_group='none'
+    # best_loss,model_path = star_one_train(args,dataset_info)
+    # model_path_list.append(model_path)
+    
+
+    # # two
+    # args.parameter_group='two'
+    # best_loss,model_path = star_one_train(args,dataset_info)
+    # model_path_list.append(model_path)
+    
+
+    # # each
+    # args.parameter_group='each'
+    # best_loss,model_path = star_one_train(args,dataset_info)
+    # model_path_list.append(model_path)
+    
+    # # train 50-100
+    # args.date_range = '50_999'
 
 
     

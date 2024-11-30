@@ -47,7 +47,6 @@ def get_args_parser():
     parser.add_argument('--flux_size', default=3450, type=int,
                         help='images input size')
 
-    # Hyperparameters_MAE
     # Hyperparameters_SpecTE
     parser.add_argument('--Hyperparameters_SpecTE', 
                         default={'patch_size':230, # 将输入图像分割成补丁的大小。  230
