@@ -25,3 +25,8 @@ model_test
 **/__pycache__/
 **/.ipynb_checkpoints/
 *.tmp
+*.pdf
+*.log
+*.pkl
+*.csv
+*.png
