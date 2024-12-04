@@ -370,9 +370,9 @@ def get_dataset_info(args):
     
 
     # 光谱像素点数:3456->3450
-    x_train = x_train[:, 3:-3]
-    x_valid = x_valid[:, 3:-3]
-    x_test = x_test[:, 3:-3]
+    # x_train = x_train[:, 3:-3]
+    # x_valid = x_valid[:, 3:-3]
+    # x_test = x_test[:, 3:-3]
 
     X_train_torch = torch.tensor(x_train, dtype=torch.float32)
     X_valid_torch = torch.tensor(x_valid, dtype=torch.float32)
