@@ -62,7 +62,7 @@ def get_args_parser():
     parser.add_argument('--net', choices=['SpecTE'], default='SpecTE',
                         help='The models you need to use.',)
 
-    # Hyperparameters_Vit
+ 
     # Hyperparameters_SpecTE
     parser.add_argument('--Hyperparameters_SpecTE', 
                         default={'patch_size':115, # 将输入图像分割成补丁的大小。   # 230
@@ -108,20 +108,15 @@ def get_args_parser():
                         help='加噪声 ')
     
     parser.add_argument('--Flux_std', type=bool, default=True,
-                        help='Whether to 标准化流量数据.',)
+                        help='Whether to standardized flux data.',)
     
     parser.add_argument('--label_list', type=list, 
                         default=['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
                                  'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH', 'snrg',],  
                                  
                         help='The label data that needs to be learned.')
-    # ['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
-    #                              'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH', 'snrg', 'obsid', 'uid',]
-    # ['Teff[K]', 'Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH','KH', 'CaH', 'TiH', 'CrH','MnH', 'FeH', 'NiH', 'snrg'],  
 
      #===============================定义路径=======================================
-    # parser.add_argument('--path_data_set', type=str, default = r'E:/my_star/预处理/data_after_processing/result',
-    #                     help='数据所在位置',) r'./1_Data_download_and_preprocessing/Denoising_reference_set/data_after_processing/result'
 
     parser.add_argument('--path_data_set', type=str, default= r'./1_Data_download_and_preprocessing/Parameter_estimation_reference_set/data_after_processing/result',   # ./optuna_log/
                         help='The path of the data after preprocessed.')
@@ -134,9 +129,7 @@ def get_args_parser():
 
     parser.add_argument('--loss_type', choices=['PDPL', 'MSE','MAE','SoothL1Loss'], default='PDPL',
                         help='PDPL:Probability Density Parameter Loss.概率密度分布',)
-    
-    # parser.add_argument('--weight_mode', choices=['loss','mae'], default='loss',
-    #                     help='PDPL:Probability Density Parameter Loss.概率密度分布',)
+
 
     #===============================测试状态=======================================
     parser.add_argument('--DeepEnsemble', type=bool, default=True,
@@ -226,7 +219,7 @@ def get_dataset_info(args):
         # 标准化标签（假设label_std是 DataFrame）
 
         label_std = (label.iloc[:, :19].values - mean_label.values) / std_label.values
-        # 如果需要，可以将label_std转换回DataFrame：
+        
         label_std = pd.DataFrame(label_std, columns=args.label_list[:19])
 
 
