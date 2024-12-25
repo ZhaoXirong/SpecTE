@@ -10,12 +10,14 @@ This repository contains the code, pre-trained models, and experimental data ass
 - **Transformer Architecture**: Utilizes the Transformer model to effectively extract features from sub-bands and analyze correlations between different spectral bands.
 - **High Accuracy and Robustness**: Achieves superior performance in estimating stellar parameters and element abundances compared to existing methods like StarNet and StarGRUNet.
 
-## Data
+## Data and Code Structure
 
-The repository includes:
-- Pre-trained SpecTE models for parameter estimation.
-- Experimental data used in the paper for reproducibility.
-- Stellar catalog with estimated parameters and uncertainties.
+The repository is organized into four main parts, each contained within its respective file:
+
+1. **Data_download_and_preprocessing**: Contains code for downloading and pre-processing the dataset.
+2. **SpecTE**: Houses the model architecture and training-related code.
+3. **Model_evaluation**: Includes code for evaluating the performance of the SpecTE model.
+4. **SpecTE-LAMOST_catalog**: Contains code for generating the SpecTE-LAMOST catalog and evaluating the catalog.
 
 
 ## Prerequisites
