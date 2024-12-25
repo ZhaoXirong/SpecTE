@@ -49,8 +49,6 @@ def get_args_parser():
     
     parser.add_argument('--finetune', type=str, default=r"./2_SpecTE/model_log/pretrain/SpecTE(Pa=[115]-Di=[160]-Ha=[16]-De=[8])/OP/weight_best.pkl",
                          help='The path of the model to be fine tuned, if filled with None, will be trained from scratch.')
-
-    # "E:\my_star\model_log\pretrain\目前最好一次：MAE(Pa=[115]-Di=[160]-Ha=[32]-De=[4])_all_add-noise0.05_w-d=0.4000\OP\weight_best.pkl"
     
     parser.add_argument('--cuda', default=True,
                         help='device to use for training / testing')
@@ -77,7 +75,7 @@ def get_args_parser():
                                  'patch_drop_rate':0.00, #
                                  'proj_drop_rate':0.1 #0.05
                                  },
-                        help='''SpecTE的参数''')
+                        help='''Model parameters of SpecTE''')
     
     parser.add_argument('--global_pool',  type=bool, default=False,
                         help='The models you need to use.',)
@@ -99,7 +97,7 @@ def get_args_parser():
     #======================= =Dataset parameters数据选择和数据处理==================================
     
     parser.add_argument('--date_range', choices=['5_50', '50_999', 'all'], default='5_50',
-                        help='选择数据集信噪比范围.',)
+                        help='Select the data set S/Ng range.',)
     
     parser.add_argument('--flux_size', default=3450, type=int,
                         help='images input size')
@@ -159,10 +157,6 @@ def get_dataset_info(args):
         x_train = pickle.load(open(data_set_temp_path + "/train_flux.pkl", 'rb'))
         x_valid = pickle.load(open(data_set_temp_path + "/valid_flux.pkl", 'rb'))
         x_test = pickle.load(open(data_set_temp_path + "/test_flux.pkl", 'rb'))
-        
-        # y_train = pickle.load(open(data_set_temp_path + "/train_label.pkl", 'rb'))
-        # y_valid = pickle.load(open(data_set_temp_path + "/valid_label.pkl", 'rb'))
-        # y_test = pickle.load(open(data_set_temp_path + "/test_label.pkl", 'rb'))
 
         y_train = pd.read_csv(os.path.join(data_set_temp_path, 'train_label.csv'))
         y_valid = pd.read_csv(os.path.join(data_set_temp_path, 'valid_label.csv'))
@@ -177,8 +171,6 @@ def get_dataset_info(args):
         label_path_all = args.path_data_set + "/labels_all.csv"
         label_all = pd.read_csv(label_path_all)
         label_all = label_all[args.label_list]
-        # label_all = np.load(label_path_all,allow_pickle=True)
-        # label_all = pd.DataFrame(label_all, columns=args.label_list)  
 
         label_all = label_all.applymap(lambda x: float(x))  
         std_label = np.sqrt(label_all.iloc[:, :19].var())
@@ -213,25 +205,13 @@ def get_dataset_info(args):
         
         
         # 标签标准化
-        # std_label = np.sqrt(label.iloc[:, :17].var())
-        # mean_label = label.iloc[:, :17].mean()
-        # 标签标准化
-        # 标准化标签（假设label_std是 DataFrame）
-
         label_std = (label.iloc[:, :19].values - mean_label.values) / std_label.values
-        
         label_std = pd.DataFrame(label_std, columns=args.label_list[:19])
 
 
-        # label_std = (label.iloc[:, :19].values - mean_label.values[:, np.newaxis]) / std_label.values[:, np.newaxis]
-
-        # label_std = (label.iloc[:, :19] - mean_label) / std_label
-        
         label_std['snrg'] = label['snrg']
         # 流量标准化
         if args.Flux_std:
-            # std_flux = np.std(flux, axis=0)
-            # mean_flux = np.mean(flux, axis=0)
             flux = (flux-mean_flux)/std_flux
         # else:
         #     Flux_3sigma_sc=StandardScaler()
@@ -253,9 +233,6 @@ def get_dataset_info(args):
         print('Testing set:', x_test.shape[0], 'samples')
         
 
-        # X_train_torch = (pickle.load(open(args.path_reference_set + "train_flux.pkl", 'rb')) - flux_mean) / flux_std
-        # X_valid_torch = (pickle.load(open(args.path_reference_set + "valid_flux.pkl", 'rb')) - flux_mean) / flux_std
-
         # 保存
         label_config = {
             "label_list": args.label_list,
@@ -276,12 +253,7 @@ def get_dataset_info(args):
         y_train.to_csv(os.path.join(data_set_temp_path, 'train_label.csv'), index=False)
         y_valid.to_csv(os.path.join(data_set_temp_path, 'valid_label.csv'), index=False)
         y_test.to_csv(os.path.join(data_set_temp_path, 'test_label.csv'), index=False)
-        # with open(os.path.join(data_set_temp_path, 'train_label.pkl'), 'wb') as f:
-        #     pickle.dump(y_train, f)
-        # with open(os.path.join(data_set_temp_path, 'valid_label.pkl'), 'wb') as f:
-        #     pickle.dump(y_valid, f)
-        # with open(os.path.join(data_set_temp_path, 'test_label.pkl'), 'wb') as f:
-        #     pickle.dump(y_test, f)
+
 
 
     # 用高低信噪比的数据合并成all数据集，保证训练集验证集测试集的集合一致
@@ -380,17 +352,13 @@ def get_dataset_info(args):
     y_test_torch = torch.tensor(y_test_torch, dtype=torch.float32)
 
     print("x_train_torch.shape:", X_train_torch.shape)
-    # print("x_train_torch.dtype:", X_train_torch.dtype)
     print("y_train_torch.shape:", y_train_torch.shape)
-    # print("y_train_torch.dtype:", y_train_torch.dtype)
 
     print("x_valid_torch:\n", X_valid_torch.shape)
     print("y_valid_torch:\n", y_valid_torch.shape)
     print("x_test_torch:\n", X_test_torch.shape)
     print("y_test_torch:\n", y_test_torch.shape)
 
-    # print("x_train_torch:\n", X_train_torch)
-    # print("y_train_torch:\n", y_train_torch)
 
     train_dataset = Data.TensorDataset(X_train_torch, y_train_torch)
     valid_dataset = Data.TensorDataset(X_valid_torch, y_valid_torch)
@@ -406,7 +374,7 @@ def get_dataset_info(args):
     valid_loader = Data.DataLoader(
         dataset=valid_dataset,
         batch_size=args.batch_size,
-        shuffle=False,  # True
+        shuffle=False,  
         num_workers=0,
     )
     test_loader = Data.DataLoader(
@@ -484,14 +452,9 @@ def train(args, dataset_info, train_label=['Teff[K]', 'Logg', 'FeH'], model_numb
     model_name += "_{}{}".format(args.date_range,'_stdFlux' if args.Flux_std else '')
     if args.noise_model[0]:
         model_name += "_add-noise{}".format(args.noise_model[1])    
-    # model_name += "_{}".format(args.loss_type)
     model_name = "{}_{}".format(args.parameter_group,model_name)
 
     # 定义优化器 和学习器
-    # optimizer = torch.optim.Adam(net.parameters(), lr=0.001)  # 优化器选择Adam
-    # optimizer = torch.optim.Adam(net.parameters(), lr=0.001)  # 优化器选择Adam
-    # # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=8, gamma=0.2)  # 用学习率调整器动态调整优化器的学习率
-    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=8, gamma=0.2)
     if args.lr is None:  # only base_lr is specified
         args.lr = args.blr * args.batch_size / 256 
     param_groups = optim_factory.param_groups_weight_decay(net, args.weight_decay)
@@ -512,10 +475,7 @@ def train(args, dataset_info, train_label=['Teff[K]', 'Logg', 'FeH'], model_numb
 
         # 打印加载预训练模型的信息
         print("Load pre-trained checkpoint from: %s" % args.finetune)
-        
-        # 从checkpoint中获取模型的状态字典
-        # checkpoint_model = checkpoint['model']
-        
+
         # 获取当前模型的状态字典
         state_dict = net.state_dict()
         
@@ -610,8 +570,6 @@ def train(args, dataset_info, train_label=['Teff[K]', 'Logg', 'FeH'], model_numb
 
             lr_sched.adjust_learning_rate(optimizer, step / len(dataset_info["train_loader"]) + epoch, args)
             writer.add_scalar('Train/loss', loss.to("cpu").data.numpy(), n_iter)
-            # for i in range(len(train_label)):
-            #     writer.add_scalar('Train/%s_MAE' % train_label[i], mae[i], n_iter)
 
         # scheduler.step()    # 更新优化器的学习率
         lr = optimizer.state_dict()['param_groups'][0]['lr']   # 返回优化器的状态字典
@@ -619,7 +577,6 @@ def train(args, dataset_info, train_label=['Teff[K]', 'Logg', 'FeH'], model_numb
         train_mae /= (step + 1)   # 平均 MAE
         torch.cuda.empty_cache()   # 清空缓存
         net.eval()         # 将网络设置为评估模式
-
 
         # 定义一些验证集要记录和保存的参数
         valid_mae = np.zeros(len(label_index))  # 记录验证集的平均 MAE
@@ -630,8 +587,6 @@ def train(args, dataset_info, train_label=['Teff[K]', 'Logg', 'FeH'], model_numb
         output_label = np.zeros(shape=(len(dataset_info["valid_loader"].dataset), len(train_label)))    # 原始数
         output_label_mu = np.zeros_like(output_label)       # 预测值mu
         output_label_sigma = np.zeros_like(output_label)    # 预测值sigma
-        
-
 
         # Valid
         for step, (batch_x, batch_y) in enumerate(dataset_info["valid_loader"]):
@@ -642,11 +597,9 @@ def train(args, dataset_info, train_label=['Teff[K]', 'Logg', 'FeH'], model_numb
                     batch_x = batch_x.to("cuda")
                     batch_y = batch_y.to("cuda")
 
-
                 mu, sigma = net(batch_x)
                 if args.loss_type == "PDPL":
                     loss = PDPL_loss(batch_y, mu, sigma)
-                
                 else:
                     loss = criterion(mu, batch_y)
 
@@ -700,9 +653,7 @@ def train(args, dataset_info, train_label=['Teff[K]', 'Logg', 'FeH'], model_numb
         if valid_mae_mean < best_mae:
             best_mae = valid_mae_mean
             torch.save(net.state_dict(), log_dir + '/weight_best_mae.pkl')
-            # valid_out_mu_mae = np.array(output_label_err)
-            # if args.loss_type == "PDPL":valid_out_sigma_mae = np.array(output_label_err)
-
+ 
         print("EPOCH %d | lr %f | train_loss %.4f | valid_loss %.4f" % (epoch, lr, train_loss, valid_loss),
               "| valid_mae", valid_mae,
               "| valid_diff_std", vlaid_diff_std)
@@ -743,13 +694,6 @@ def train(args, dataset_info, train_label=['Teff[K]', 'Logg', 'FeH'], model_numb
 
     return best_loss
 
-    # 保存验证集输出的结果（带原始数据）
-    # data_set_temp_path = args.path_data_processed + "/dataset/{}{}".format(args.date_range,'_stdFlux' if args.Flux_std else '')
-    # df = pd.read_csv(data_set_temp_path + "/valid_label.csv")
-    # for i in range(len(train_label)):
-    #     df["%s_%s" % (model_name, train_label[i])] = valid_out_mu[:, i]
-    #     df["%s_%s_err" % (model_name, train_label[i])] = valid_out_sigma[:, i]
-    # df.to_csv(log_dir + "/valid_label_out.csv", index=False)
 
 
 def predict(args, dataset_info,para_dict):
@@ -938,28 +882,6 @@ def predict(args, dataset_info,para_dict):
         
         return finally_loss, model_path 
 
-        # # 保存带原始数据的结果
-        # data_set_temp_path = args.path_data_processed + "/{}{}".format(args.date_range,'_stdFlux' if args.Flux_std else '')
-        # df = pd.read_csv(data_set_temp_path+'/test_label.csv')
-        # cols = [col for col in df.columns if col in train_label]
-        # df[cols] = df[cols] * label_std[train_label_index] + label_mean[train_label_index]
-        # for i in range(len(train_label)):
-        #     df["%s_%s" % (model_name, train_label[i])] = out_mu[:, i]
-        #     if args.loss_type == "PDPL": df["%s_%s_err" % (model_name, train_label[i])] = out_sigma[:, i]
-        # # df.to_csv(args.path_data_processed+'/result/test_label.csv'[:-4] + "_%s_out.csv" % model_name, index=False)
-        # df.to_csv(model_path+'/test_label.csv'[:-4] + "_%s_out.csv" % model_name, index=False)
-        # # df.to_csv(model_path + "/valid_label_{}_out.csv".format(model_name), index=False)
-            
-
-        # # 保存测试集输出的结果
-        # df_predict_valid = pd.DataFrame()
-        # # 添加或更新数据
-        # for i in range(len(train_label)):
-        #     df_predict_valid[train_label[i]] = out_mu[:, i]
-        #     if args.loss_type == "PDPL": df_predict_valid[f"{train_label[i]}_err"] = out_sigma[:, i]
-        # # 保存
-        # file_path = os.path.join(model_path, "predict_test.csv") 
-        # df_predict_valid.to_csv(file_path, index=False)
 
 def get_para_dict(args):
     parameter_group=args.parameter_group
@@ -967,18 +889,12 @@ def get_para_dict(args):
         para_dict = {'AL':['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
                                  'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH',],}
     elif parameter_group=='two':
-        # V1.0
-        # para_dict = {
-        #     'SP':['Teff[K]', 'Logg', 'FeH'],
-        #     'CA':['RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'NiH',]}
-                    # 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH'
-        # V 1.1
+
         para_dict = {
             'SP':['Teff[K]', 'Logg', 'FeH', 'RV'],
             'CA':['CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'NiH',]}
 
     elif parameter_group=='each':
-        # v1.0
         para_dict = {
             'te':['Teff[K]'],
             'Lo':['Logg'],
@@ -1000,29 +916,6 @@ def get_para_dict(args):
             'Na':['NaH'],
             'VH':['VH'],
             }
-        # v2.0
-        # para_dict = {
-        #     'te':['Teff[K]'],
-        #     'Fe':['FeH'],
-        #     'NH':['NH'],
-        #     'RV':['RV'],
-        #     'ot':['Logg', 'CH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH']
-        #     }     
-        # v3.0  对比不如 v2.0
-        # para_dict = {
-        #     'te':['Teff[K]'],
-        #     'Fe':['FeH'],
-        #     'RV':['RV'],
-        #     'ot':['Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH']
-        #     }  
-        # v3.1   对比不如 v2.0
-        # para_dict = {
-        #     'te':['Teff[K]'],
-        #     'Al':['AlH'],
-        #     'RV':['RV'],
-        #     'CH':['CH'],
-        #     'ot':['Logg', 'CH', 'NH', 'OH', 'MgH' , 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'MnH', 'NiH', 'NaH', 'VH','FeH']
-        #     }  
         
     return para_dict
 
@@ -1071,31 +964,7 @@ if __name__ == "__main__":
         print(best_loss)
 
 
-    # # train 50-100
-    # args.date_range ='5_50' 
-    # dataset_info = get_dataset_info(args)
 
-
-    # model_path_list=[]
-    # # none
-    # args.parameter_group='none'
-    # best_loss,model_path = star_one_train(args,dataset_info)
-    # model_path_list.append(model_path)
-    
-
-    # # two
-    # args.parameter_group='two'
-    # best_loss,model_path = star_one_train(args,dataset_info)
-    # model_path_list.append(model_path)
-    
-
-    # # each
-    # args.parameter_group='each'
-    # best_loss,model_path = star_one_train(args,dataset_info)
-    # model_path_list.append(model_path)
-    
-    # # train 50-100
-    # args.date_range = '50_999'
 
 
     
