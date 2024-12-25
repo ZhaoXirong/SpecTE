@@ -20,40 +20,40 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     
     parser.add_argument(
-        '--net_list', default=["none_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
-                            "two_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999",
-                            "each_MAE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_50_999"
+        '--net_list', default=["two_SpecTE(Pa=[115]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",
+                            "none_SpecTE(Pa=[115]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",
+                            "each_SpecTE(Pa=[115]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux"
                             ],
         help='''
-            model name list(需保证在模型log文件夹内)
+            List of model names to be blended(Ensure that it is in the path_log folder).
             '''
     )
 
     parser.add_argument(
         '--model_path', default=None,
         help='''
-            可以直接放模型的路径列表（优先级高）
+            List of model paths to be blended (high priority).
             '''
     )
 
 
     parser.add_argument(
         '--path_label_config', type=str, default='./2_SpecTE/data_processed/fine_tuning_dataset/5_50_stdFlux/label_config.pkl',
-        help='存放标签的一些信息，包括数据和标签的均值方差等，用于还原',
+        help='The path of the label config file. Some information of labels, including data and mean variance of labels, is used to restore.',
     )
     
 
     # 存放模型数据的路径
     parser.add_argument(
         '--path_log', type=str, default= './2_SpecTE/model_log/fine_tune/',
-        help='The path to save the model data after training.'
+        help='The path of the trained primary learner model to be integrated.'
     )
     
 
     # 保存位置
     parser.add_argument(
         '--path_save', type=str, default='./2_SpecTE/model_log/blending/',   
-        help='The path to save the model data after training.'
+        help='The path to save the model data after blending.'
     )
 
 
@@ -67,7 +67,7 @@ def get_args_parser():
     )
     parser.add_argument(
         '--date_range', choices=['5_50', '50_999', 'all'], default='50_999',
-        help='选择数据集信噪比范围.',
+        help='Select the data set S/Ng range.',
     )
 
 
@@ -164,14 +164,7 @@ def train(args, dataset_info, train_label):
             x_valid_P = valid[[param_name+'_mu_'+str(j),param_name+'_sigma_'+str(j)]]
             x_test_P = test[[param_name+'_mu_'+str(j),param_name+'_sigma_'+str(j)]]
             x_test_err = test[[param_name+'_sigma_'+str(j)]]
-            
-            # a="不要sigma"
-            # if a=="不要sigma":
-            #     x_valid_P = valid[[param_name+'_mu_'+str(j),]]
-            #     x_test_P = test[[param_name+'_mu_'+str(j),]]
-            # 只读取估计结果
-            # x_valid_P = valid[param_name+'_mu_'+str(j)]
-            # x_test_P = test[param_name+'_mu_'+str(j)]
+
 
             x_valid_P = x_valid_P.to_numpy()
             x_test_P = x_test_P.to_numpy()
@@ -181,16 +174,9 @@ def train(args, dataset_info, train_label):
             x_valid_list.append(x_valid_P)
             x_test_list.append(x_test_P)
             text_err_list.append(x_test_err)
-            # if x_valid_Param is None:
-            #     x_valid_Param = x_valid_P
-            #     x_test_Param = x_test_P
-            # else:
-            #     x_valid_Param = np.hstack((x_valid_Param, x_valid_P))
-            #     x_test_Param = np.hstack((x_test_Param, x_valid_P))
+
         x_valid_Param = np.hstack(x_valid_list)
         x_test_Param = np.hstack(x_test_list)
-        # x_valid_Param = np.stack(x_valid_list, axis=1)
-        # x_test_Param = np.stack(x_test_list, axis=1)
 
             # 用多元线性回归估计
         if args.mode_train == "linear":
@@ -237,9 +223,6 @@ def train(args, dataset_info, train_label):
         
         joblib.dump(model, blending_model_path)
 
-        # # 保存测试集预测结果
-        # blending_result_path = f"../data/Bi-GRU-Attention_predictions/between_5_50/Blending/{param_name}_prediction.npy"
-        # np.save(blending_result_path, y_pred_blending_Param)
  
     # 真实参数/预测结果
     return y_test_Param, y_pred,y_err
@@ -354,9 +337,9 @@ def blending(args):
 if __name__ == "__main__":
     parser = get_args_parser()
     args = parser.parse_args()
-    args.model_path=[r"G:\Star\model_test\all\1_finetune_lr\0_lr=[0.001]-drop=[0.0]\fine_tune\each_SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",
-                     r"G:\Star\model_test\all\1_finetune_lr\0_lr=[0.001]-drop=[0.0]\fine_tune\none_SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",
-                     r"G:\Star\2_SpecTE\model_log\fine_tuning\two_SpecTE(Pa=[230]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",]
+    args.model_path=[r"G:\Star\2_SpecTE\model_log\fine_tuning\each_SpecTE(Pa=[115]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",
+                     r"G:\Star\2_SpecTE\model_log\fine_tuning\none_SpecTE(Pa=[115]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",
+                     r"G:\Star\2_SpecTE\model_log\fine_tuning\two_SpecTE(Pa=[115]-Di=[160]-Ha=[16]-De=[8]-mlp=[4.0])_5_50_stdFlux",]
     print (args.net_list)
     print (blending(args))
     
