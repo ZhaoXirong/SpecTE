@@ -24,7 +24,6 @@ from util.loss_curves import plot_and_save_loss_curves
 
 
 from models.SpecTE_pretrain import SpecTE
-# from models.vit1D import VisionTransformer
 
 
 def get_args_parser():
@@ -90,8 +89,6 @@ def get_args_parser():
     parser.add_argument('--seed', default=1, type=int)
 
      #===============================定义路径=======================================
-    # parser.add_argument('--path_data_set', type=str, default = r'E:/my_star/预处理/data_after_processing/result',
-    #                     help='数据所在位置',)
     parser.add_argument('--path_data_set', type=str, default= r'./1_Data_download_and_preprocessing/Denoising_reference_set/data_after_processing/result',   # ./optuna_log/
                         help='The path of the data after preprocessed.')
     
@@ -145,9 +142,6 @@ def get_dataset_info(args):
 
         # 流量标准化
         if args.Flux_std:
-            # std_flux = np.std(flux, axis=0)
-            # mean_flux = np.mean(flux, axis=0)
-            # flux = (flux-mean_flux)/std_flux
 
             # 低信噪比
             Flux_3sigma_sc_low=StandardScaler()
@@ -161,13 +155,10 @@ def get_dataset_info(args):
         
         # 划分数据集
         x_train, x_valid, y_train, y_valid,match_train, match_valid= train_test_split(flux_low, flux_high, match_snrg,test_size=0.2, random_state=args.seed)
-        # x_valid, x_test, y_valid, y_test = train_test_split(x_valid_test, y_valid_test, test_size=0.67, random_state=args.seed)
 
         print('size:', x_train.shape, y_train.shape,)
         print('Training set:', x_train.shape[0], 'samples', 'flux type:', type(x_train), 'Training labels:', type(y_train))
         print('Validation set:', x_valid.shape[0], 'samples')
-
-
 
         # 保存
         label_config = {
@@ -241,13 +232,6 @@ def get_dataset_info(args):
             "match_valid": match_valid,
         }
 
-        # with open(os.path.join(data_set_temp_path, 'label_config.pkl'), 'wb') as f:
-        #     pickle.dump(label_config, f)
-
-        # np.save(os.path.join(data_set_temp_path, 'train_flux.npy'), x_train)
-        # np.save(os.path.join(data_set_temp_path, 'valid_flux.npy'), x_valid)
-        # np.save(os.path.join(data_set_temp_path, 'train_label.npy'), y_train)
-        # np.save(os.path.join(data_set_temp_path, 'valid_label.npy'), y_valid)
 
 
     # 读取已经处理的数据
@@ -257,20 +241,11 @@ def get_dataset_info(args):
         match_valid = label_config["match_valid"]
 
 
-        # x_train = pickle.load(open(data_set_temp_path + "/train_flux.pkl", 'rb'))
-        # x_valid = pickle.load(open(data_set_temp_path + "/valid_flux.pkl", 'rb'))
         x_train = np.load(data_set_temp_path + "/train_flux.npy")
         x_valid = np.load(data_set_temp_path + "/valid_flux.npy")
         y_train = np.load(data_set_temp_path + "/train_label.npy")
         y_valid = np.load(data_set_temp_path + "/valid_label.npy")
 
-        # y_train = pickle.load(open(data_set_temp_path + "/train_label.pkl", 'rb'))
-        # y_valid = pickle.load(open(data_set_temp_path + "/valid_label.pkl", 'rb'))
- 
-
-        # y_train = pd.read_csv(os.path.join(data_set_temp_path, 'train_label.csv'))
-        # y_valid = pd.read_csv(os.path.join(data_set_temp_path, 'valid_label.csv'))
-        # y_test = pd.read_csv(os.path.join(data_set_temp_path, 'test_label.csv'))
         del label_config           
     else :
         raise Exception("检查{}下的内容。".format(data_set_temp_path))
@@ -290,9 +265,6 @@ def get_dataset_info(args):
     print("y_valid_torch:\n", y_valid_torch.shape)
 
 
-    # print("x_train_torch:\n", X_train_torch)
-    # print("y_train_torch:\n", y_train_torch)
-
     train_dataset = Data.TensorDataset(X_train_torch, y_train_torch)
     valid_dataset = Data.TensorDataset(X_valid_torch, y_valid_torch)
 
@@ -307,7 +279,7 @@ def get_dataset_info(args):
     valid_loader = Data.DataLoader(
         dataset=valid_dataset,
         batch_size=args.batch_size,
-        shuffle=False,  # True
+        shuffle=False, 
         num_workers=0,
     )
 
@@ -369,9 +341,7 @@ def train(args, dataset_info, model_number=None):
     else:
         raise Exception("模型名字错误，程序已终止。")
     model_name += "{}{}".format('_'+args.date_range if args.date_range != 'all' else '' ,'_stdFlux' if args.Flux_std else '')
-    # if args.noise_model[0]:
-    #     model_name += "_add-noise{:.2f}".format(args.noise_model[1])    
-    # model_name += "_w-d={:.4f}".format(args.weight_decay)
+
         
     print("Model = %s" % str(net))
     print("Modelname:", model_name)
@@ -383,15 +353,8 @@ def train(args, dataset_info, model_number=None):
         args.lr = args.blr * args.batch_size / 256 
            #目的是在不同大小的批处理时保持学习率的相对稳定，以获得更好的训练效果
 
-    # param_groups = optim_factory.param_groups_weight_decay(net, args.weight_decay)
     param_groups = optim_factory.param_groups_weight_decay(net, args.weight_decay)
     optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(0.9, 0.95))
-    # optimizer = optim_factory.create_optimizer_v2(model.parameters(), **optimizer_cfg)
-    print(optimizer)
-#     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)  # 优化器选择Adam
-#  # 用学习率调整器动态调整优化器的学习率
-#     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=25, gamma=0.1)
-    
   
     # 定义Tensorboard路径
     if model_number:
@@ -436,13 +399,11 @@ def train(args, dataset_info, model_number=None):
             optimizer.step()            # 更新梯度
 
             n_iter = (epoch - 1) * len(dataset_info["train_loader"]) + step + 1  # 局迭代步数n_iter，用于记录 Tensorboard 日志及其他训练过程中的信息。
-
-            # pred_flux = pred.to("cpu").data.numpy()                              # 反归一化处理 得到真实的预测值
+ 
 
             lr_sched.adjust_learning_rate(optimizer, step / len(dataset_info["train_loader"]) + epoch, args)
             writer.add_scalar('Train/loss', loss.to("cpu").data.numpy(), n_iter)
-            # for i in range(len(train_label)):
-            #     writer.add_scalar('Train/%s_MAE' % train_label[i], mae[i], n_iter)
+
 
         # scheduler.step()    # 更新优化器的学习率
         lr = optimizer.state_dict()['param_groups'][0]['lr']   # 返回优化器的状态字典
