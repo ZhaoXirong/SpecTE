@@ -10,7 +10,7 @@ from pretrain import get_dataset_info as get_dataset_info_pretrain
 from fine_tuning import get_args_parser as get_args_parser_finetune
 from fine_tuning import get_dataset_info as get_dataset_info_finetune
 from fine_tuning import star_one_train as train_finetune
-from fine_tuning import predict
+# from fine_tuning import predict
 
 
 
@@ -37,7 +37,6 @@ def main(model_pwd_path,finetune_path):
         
         # 定义工作路径    
         args_pretrain.path_log= os.path.join(model_pwd_path,"pretrain/")
-        # args_pretrain.path_log= r"F:/optuna_log/pretrain/"
 
         best_loss, finetune_path=train_pretrain(args_pretrain, dataset_info=dataset_info_pretrain,model_number= "OP")
 
@@ -83,9 +82,6 @@ def main(model_pwd_path,finetune_path):
     blending_args = blending_parser.parse_args()
     blending_args.date_range = '5_50'
     blending_args.model_path=model_path_list
-    # blending_args.model_path=[r"F:\My_trial\paper\T\all\3_T=[50]-size=[69]\fine_tune\each_MAE(Pa=[69]-Di=[160]-Ha=[16]-De=[4]-mlp=[4.0])_5_50_stdFlux",
-    #                           r"F:\My_trial\paper\T\all\3_T=[50]-size=[69]\fine_tune\none_MAE(Pa=[69]-Di=[160]-Ha=[16]-De=[4]-mlp=[4.0])_5_50_stdFlux",
-    #                           r"F:\My_trial\paper\T\all\3_T=[50]-size=[69]\fine_tune\two_MAE(Pa=[69]-Di=[160]-Ha=[16]-De=[4]-mlp=[4.0])_5_50_stdFlux",]
     blending_args.path_save = os.path.join(model_pwd_path,"blending/5_50/")
     os.makedirs(blending_args.path_save, exist_ok=True)
     best_loss=blending(blending_args)
