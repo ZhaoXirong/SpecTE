@@ -80,14 +80,14 @@ def get_args_parser():
                                  'patch_drop_rate':0.00, #
                                  'proj_drop_rate':0.1 #0.05
                                  },
-                        help='''SpecTE的参数''')
+                        help='''Model parameters of SpecTE''')
 
     
     parser.add_argument('--flux_size', default=3450, type=int,
                         help='images input size')
     
     parser.add_argument('--noise_model', type=list, default=[False,0.1],    # add_training_noise
-                        help='加噪声 ')
+                        help='Add noise ')
     
     parser.add_argument('--Flux_std', type=bool, default=True,
                         help='Whether to standardized flux data.',)
@@ -123,16 +123,7 @@ def get_dataset_info(args, no = 0):
     # 加载数据
     flux = np.load(data_set_path+data_list[no])
     info = pd.read_csv(info_path + info_list[no])
-    
 
-    # # 去除存在无穷值的数据
-    # rows_with_nan = np.isnan(flux).any(axis=1)
-    # indices_of_rows_with_nan = np.where(rows_with_nan)[0]
-    # flux = np.delete(flux, indices_of_rows_with_nan, axis=0)
-    # label = np.delete(label, indices_of_rows_with_nan, axis=0)
-    # label = pd.DataFrame(label, columns=['Teff[K]', 'Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH',
-    #                                         'KH', 'CaH', 'TiH', 'CrH','MnH', 'FeH', 'NiH', 'snrg'])  
-    # label = label.applymap(lambda x: float(x))  
     
 
     # 流量标准化
@@ -151,7 +142,7 @@ def get_dataset_info(args, no = 0):
 
     print('flux_shape:', flux.shape)
     print('info_shape:', info.shape)
-
+    # flux = flux[:, 3:-3]
 
     # 将数据转化为tensor
     flux_torch = torch.tensor(flux, dtype=torch.float32)
@@ -312,8 +303,7 @@ def primary_predict(args, dataset_info,para_dict):
 
     true_label_list = [label for sublist in para_dict.values() for label in sublist]
     # train_label = ['Teff[K]', 'Logg', 'CH', 'NH', 'OH', 'MgH', 'AlH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH','MnH', 'FeH', 'NiH']
-    train_label = ['Teff[K]', 'Logg', 'RV', 'CH', 'NH', 'OH', 'NaH', 'MgH', 'AlH', 'SiH', 'SH', 
-                                 'KH', 'CaH', 'TiH',  'VH', 'CrH','MnH', 'FeH', 'NiH',]
+    train_label = args.label_list
     # ['Teff[K]', 'Logg', 'RV', 'FeH', 'MgH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 
     #                              'NiH', 'CH', 'NH', 'OH',  'AlH', 'MnH','NaH', 'VH',]
     train_label_index = [train_label.index(label) for label in true_label_list if label in train_label]
@@ -405,11 +395,6 @@ def blending_train(args, dataset, train_label):
         x_predict = data[[param_name+'_mu',param_name+'_sigma']]
         x_predict_err = data[[param_name+'_sigma']]
 
-        # a="不要sigma"
-        # if a=="不要sigma":
-        #     x_valid_P = valid[[param_name+'_mu_'+str(j),]]
-        #     x_test_P = test[[param_name+'_mu_'+str(j),]]
-
         x_predict = x_predict.to_numpy()
         x_predict_err = x_predict_err.to_numpy()
 
@@ -439,19 +424,12 @@ def star_one_blending(args,primary_result_list):
     
     para_list = ['Teff[K]', 'Logg', 'RV', 'FeH', 'MgH', 'SiH', 'SH', 'KH', 'CaH', 'TiH', 'CrH', 'NiH', 'CH', 'NH', 'OH',  'AlH', 'MnH','NaH', 'VH',]
 
-    # all_result = defaultdict(lambda: [[], []])
-    # all_result = defaultdict(lambda: [[], []])
-
     # 按照输出结果一致的格式初始化
     catalog_result = primary_result_list[0][['obsid','ra','dec','snrg']].copy()
-
-
 
     # 逐个参数训练
     for para in para_list:
         pridect_result,err = blending_train(args, dataset=primary_result_list, train_label=para)
-        # all_result[key][0] = pridect_result
-        # all_result[key][1] = err
         catalog_result.loc[:, para] = pridect_result
         catalog_result.loc[:,para+'_uncertainty'] = err
 
